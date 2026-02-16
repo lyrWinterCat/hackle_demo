@@ -1,4 +1,4 @@
-# 🛍 Hackle Demo Store
+# Hackle Demo Store
 
 Hackle 이벤트 트래킹 테스트를 위한 전자상거래 데모 웹사이트입니다.
 
