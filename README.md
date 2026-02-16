@@ -76,7 +76,7 @@ node server.js
 
 3. 브라우저에서 접속:
 ```
-http://localhost:3000
+http://localhost:3001
 ```
 
 ## 상품 카테고리
