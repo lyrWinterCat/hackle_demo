@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackle Demo Store - 홈</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span>🛍</span>
+        <span>Hackle Store</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">홈</a></li>
+        <li><a href="list.html">상품</a></li>
+        <li><a href="cart.html">장바구니 <span class="cart-badge" id="cart-count">0</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="hero fade-in">
+      <h1>🎉 Hackle Demo Store</h1>
+      <p>최고의 전자제품과 가구를 한곳에서!</p>
+      <p class="small">테스트용 구매 퍼널 데모 페이지입니다.</p>
+      <div style="margin-top: 2rem;">
+        <a href="list.html"><button class="lg success">쇼핑 시작하기 →</button></a>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="grid" style="margin-top: 2rem;">
+      <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">💻</div>
+        <h3 style="text-align: center;">전자제품</h3>
+        <p class="small" style="text-align: center;">최신 노트북, 스마트폰, 이어폰</p>
+      </div>
+      <div class="card fade-in" style="animation-delay: 0.2s;">
+        <div style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🪑</div>
+        <h3 style="text-align: center;">가구</h3>
+        <p class="small" style="text-align: center;">편안한 책상과 의자</p>
+      </div>
+      <div class="card fade-in" style="animation-delay: 0.3s;">
+        <div style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🚚</div>
+        <h3 style="text-align: center;">빠른 배송</h3>
+        <p class="small" style="text-align: center;">신속하고 안전한 배송 서비스</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/tracking.js"></script>
+  <script>
+    trackViewHome();
+    
+    // Update cart count
+    function updateCartCount() {
+      const cart = getCart();
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+    
+    updateCartCount();
+  </script>
+</body>
+</html>

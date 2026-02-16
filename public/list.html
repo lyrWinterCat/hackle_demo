@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품 목록 - Hackle Store</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span>🛍</span>
+        <span>Hackle Store</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">홈</a></li>
+        <li><a href="list.html" class="active">상품</a></li>
+        <li><a href="cart.html">장바구니 <span class="cart-badge" id="cart-count">0</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div style="background: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+      <h1 style="margin: 0 0 0.5rem 0;">🛒 전체 상품</h1>
+      <p class="small">원하시는 상품을 선택해주세요</p>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div style="margin-bottom: 2rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="secondary" onclick="filterProducts('all')" id="filter-all">전체</button>
+      <button class="secondary" onclick="filterProducts('electronics')" id="filter-electronics">전자제품</button>
+      <button class="secondary" onclick="filterProducts('furniture')" id="filter-furniture">가구</button>
+    </div>
+
+    <div id="product-list" class="grid"></div>
+  </div>
+
+  <script src="data/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/tracking.js"></script>
+
+  <script>
+    trackViewList("all");
+    let currentFilter = 'all';
+
+    const productIcons = {
+      'notebook1': '💻',
+      'notebook2': '💻',
+      'desktop1': '🖥️',
+      'smartphone1': '📱',
+      'smartphone2': '📱',
+      'earphone1': '🎧',
+      'desk1': '🪑',
+      'chair1': '🪑'
+    };
+
+    function renderProducts() {
+      const container = document.getElementById("product-list");
+      container.innerHTML = "";
+
+      const filtered = currentFilter === 'all' 
+        ? PRODUCTS 
+        : PRODUCTS.filter(p => p.category === currentFilter);
+
+      filtered.forEach((product, idx) => {
+        const div = document.createElement("div");
+        div.className = "card fade-in";
+        div.style.animationDelay = `${idx * 0.05}s`;
+        
+        const stockClass = product.stock < 5 ? 'low-stock' : '';
+        const categoryBadge = product.category === 'electronics' ? 'badge-electronics' : 'badge-furniture';
+        const icon = productIcons[product.id] || '📦';
+
+        div.innerHTML = `
+          <div class="product-image">
+            <span>${icon}</span>
+          </div>
+          <div class="card-header">
+            <h3 style="margin:0">${product.name}</h3>
+            <span class="badge ${categoryBadge}">${product.category === 'electronics' ? '전자' : '가구'}</span>
+          </div>
+          <p class="price">${product.price.toLocaleString()}원</p>
+          <div class="stock-badge ${stockClass}">
+            📦 재고: ${product.stock}개
+          </div>
+          <div style="margin-top: 1rem;">
+            <button onclick="goDetail('${product.id}', ${PRODUCTS.indexOf(product)+1})" style="width: 100%;">
+              상세 보기 →
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="grid-column: 1/-1;">
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <h3>상품이 없습니다</h3>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function filterProducts(category) {
+      currentFilter = category;
+      
+      // Update button states
+      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+        btn.style.background = '';
+        btn.style.color = '';
+      });
+      
+      const activeBtn = document.getElementById('filter-' + category);
+      activeBtn.style.background = 'var(--primary-color)';
+      activeBtn.style.color = 'var(--white)';
+      
+      renderProducts();
+    }
+
+    function goDetail(id, position) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (product) trackClickProductFromList(product, position);
+      window.location.href = "detail.html?id=" + id;
+    }
+
+    function updateCartCount() {
+      const cart = getCart();
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+
+    // Initialize
+    document.getElementById('filter-all').style.background = 'var(--primary-color)';
+    document.getElementById('filter-all').style.color = 'var(--white)';
+    renderProducts();
+    updateCartCount();
+  </script>
+</body>
+</html>

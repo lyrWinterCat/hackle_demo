@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>주문서 - Hackle Store</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span>🛍</span>
+        <span>Hackle Store</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">홈</a></li>
+        <li><a href="list.html">상품</a></li>
+        <li><a href="cart.html">장바구니 <span class="cart-badge" id="cart-count">0</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div style="background: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+      <h1 style="margin: 0 0 0.5rem 0;">📋 주문서</h1>
+      <p class="small">주문 내역을 확인하고 결제를 진행하세요</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div style="background: white; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+      <div style="display: flex; justify-content: space-around; align-items: center;">
+        <div style="text-align: center; opacity: 0.5;">
+          <div style="font-size: 2rem;">🛒</div>
+          <div class="small">장바구니</div>
+        </div>
+        <div style="flex: 1; height: 2px; background: var(--gray-300); margin: 0 1rem;"></div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem;">📋</div>
+          <div class="small" style="font-weight: 700; color: var(--primary-color);">주문서</div>
+        </div>
+        <div style="flex: 1; height: 2px; background: var(--gray-300); margin: 0 1rem;"></div>
+        <div style="text-align: center; opacity: 0.5;">
+          <div style="font-size: 2rem;">✅</div>
+          <div class="small">완료</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="summary"></div>
+
+    <div class="card fade-in" id="action-buttons" style="display: none;">
+      <div class="row">
+        <button class="secondary" onclick="backToCart()">
+          ← 장바구니로
+        </button>
+        <button class="success lg" onclick="purchase()">
+          💳 구매하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/tracking.js"></script>
+
+  <script>
+    const cart = getCart();
+    const summary = document.getElementById("summary");
+    const actionButtons = document.getElementById("action-buttons");
+
+    const productIcons = {
+      'notebook1': '💻',
+      'notebook2': '💻',
+      'desktop1': '🖥️',
+      'smartphone1': '📱',
+      'smartphone2': '📱',
+      'earphone1': '🎧',
+      'desk1': '🪑',
+      'chair1': '🪑'
+    };
+
+    if (cart.length === 0) {
+      summary.innerHTML = `
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>구매할 상품이 없습니다</h3>
+            <p class="small">장바구니에 상품을 담아주세요.</p>
+            <button onclick="window.location.href='list.html'">쇼핑하러 가기</button>
+          </div>
+        </div>
+      `;
+    } else {
+      // Order items
+      cart.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "card fade-in";
+        div.style.animationDelay = `${idx * 0.1}s`;
+        
+        const icon = productIcons[item.productId] || '📦';
+        const categoryBadge = item.category === 'electronics' ? 'badge-electronics' : 'badge-furniture';
+
+        div.innerHTML = `
+          <div class="row">
+            <div style="display: flex; gap: 1rem; flex: 1; align-items: center;">
+              <div class="product-image" style="width: 80px; height: 80px; font-size: 2rem; flex-shrink: 0;">
+                <span>${icon}</span>
+              </div>
+              <div>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                  <h3 style="margin:0">${item.name}</h3>
+                  <span class="badge ${categoryBadge}">${item.category === 'electronics' ? '전자' : '가구'}</span>
+                </div>
+                <div class="small">상품코드: ${item.productId}</div>
+                <div class="small">수량: ${item.quantity}개</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div class="small">단가</div>
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">${item.price.toLocaleString()}원</div>
+              <div class="small">소계</div>
+              <div class="price price-small">${(item.price * item.quantity).toLocaleString()}원</div>
+            </div>
+          </div>
+        `;
+        summary.appendChild(div);
+      });
+
+      // Total summary
+      const totalDiv = document.createElement("div");
+      totalDiv.className = "summary-box fade-in";
+      totalDiv.style.animationDelay = `${cart.length * 0.1}s`;
+      
+      const itemCount = cartItemCount(cart);
+      const totalAmount = cartTotalAmount(cart);
+
+      totalDiv.innerHTML = `
+        <div class="row">
+          <div>
+            <div class="total-label">총 주문 상품</div>
+            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">
+              ${itemCount}개
+            </div>
+            <div class="total-label">총 결제 금액</div>
+            <div class="total-amount">
+              ${totalAmount.toLocaleString()}원
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="total-label">배송비</div>
+            <div style="font-size: 1.25rem; font-weight: 600;">무료</div>
+          </div>
+        </div>
+      `;
+      summary.appendChild(totalDiv);
+
+      actionButtons.style.display = "block";
+    }
+
+    function backToCart() {
+      window.location.href = "cart.html";
+    }
+
+    function purchase() {
+      const cartNow = getCart();
+      if (cartNow.length === 0) return;
+
+      trackPurchaseComplete(cartNow);
+      clearCart();
+      window.location.href = "complete.html";
+    }
+
+    function updateCartCount() {
+      const cart = getCart();
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+    }
+
+    updateCartCount();
+  </script>
+</body>
+</html>
